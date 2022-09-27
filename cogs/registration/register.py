@@ -1,8 +1,9 @@
+import traceback
+
 import discord.ui
 import requests
 from discord.commands import slash_command
 from discord.ext import commands
-import traceback
 
 
 class Registration(commands.Cog):
@@ -47,8 +48,8 @@ class RegisterView(discord.ui.Modal):
         try:
             api = self.bot.api(api_key)
             server = self.get_server(api, server_name)
-            print(server)
-            self.bot[guild_id] = {'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server, 'api_key': api_key}
+            self.bot[guild_id] = {'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server,
+                                  'api_key': api_key}
         except IndexError:
             error_embed = discord.Embed(title='Invalid server name', color=discord.Color.red())
             return await interaction.response.send_message(embed=error_embed)

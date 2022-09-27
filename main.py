@@ -20,16 +20,7 @@ class Bot(commands.Bot):
         super().__init__(*args, **kwargs)
 
         self.ADDRESS = os.environ['ADDRESS']
-        self.DB_CONFIG = {
-            'user': os.environ['DB_USER'],
-            'password': os.environ['DB_PASSWORD'],
-            'host': os.environ['DB_HOST'],
-            'database': os.environ['DB_NAME'],
-            'port': os.environ['DB_PORT'],
-            'raise_on_warnings': True
-        }
-
-        self.db = Database(self.DB_CONFIG)
+        self.db = Database(os.environ["DB_PATH"])
         self.api = Api(self.ADDRESS)
         self.instances = {}
 

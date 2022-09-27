@@ -1,7 +1,7 @@
 import discord
-from discord.ui import View
 from discord.commands import slash_command
 from discord.ext import commands
+from discord.ui import View
 
 
 class Power(commands.Cog):
@@ -28,7 +28,8 @@ class Power(commands.Cog):
         else:
             color = discord.Color.blurple()
         embed = discord.Embed(title=f'Server is currently {status}', color=color)
-        await ctx.respond(f'power options:', embed=embed, view=PowerView(self.bot, ctx), delete_after=20, ephemeral=True)
+        await ctx.respond(f'power options:', embed=embed, view=PowerView(self.bot, ctx), delete_after=20,
+                          ephemeral=True)
 
 
 class PowerView(View):

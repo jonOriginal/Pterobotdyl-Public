@@ -1,6 +1,7 @@
+import asyncio
 import re
 from ast import literal_eval
-import asyncio
+
 import discord.errors
 import requests
 import websockets
@@ -44,7 +45,7 @@ class Instance:
         else:
             joined = '\n'.join(self.message_queue)
             previous_message = await self.get_last_message()
-            if previous_message is None or len(previous_message.content)+len(joined) >= 1500:
+            if previous_message is None or len(previous_message.content) + len(joined) >= 1500:
                 self.message_queue.clear()
                 await self.channel.send(f'```{joined}```')
             else:
@@ -110,7 +111,8 @@ class Instance:
             credentials = self.dactyl.client.servers.get_websocket(self.server_id)['data']
         except requests.exceptions.HTTPError:
             self.cogs_enabled = False
-            embed = discord.Embed(title='Websocket is unreachable, your server may be suspended.', color=discord.Color.red())
+            embed = discord.Embed(title='Websocket is unreachable, your server may be suspended.',
+                                  color=discord.Color.red())
             await self.channel.send(embed=embed)
         else:
             token, socket = credentials['token'], credentials['socket']
