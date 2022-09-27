@@ -55,3 +55,13 @@ Bot permissions:
 - ```/backup create``` to create a new backup.
 
 - messsages starting with ```/``` will be sent to the server as commands.
+
+### Optional
+Adding the program as a service:
+- cd into the program directory
+- run ```nano pterobotdyl.service```
+- change the ```WorkingDirectory``` to the path of the program
+- change ```ExecStart``` to the path to the main.py file
+- run ```sudo mv pterobotdyl.service /etc/systemd/system/pterobotdyl.service``` then ```sudo systemctl daemon-reload```
+- enable the service with ```sudo systemctl enable pterobotdyl.service``` 
+- start the service with ```sudo systemctl start pterobotdyl.service```
