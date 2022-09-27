@@ -4,6 +4,8 @@
  Discord bot for client control for pterodactyl. 
 Due to the project being in alpha, there may be bugs that I have not caught, feel free to message me on discord at 12340#0567, or create a pull request.
 
+You do not need to own the pterodactyl panel, you can host this bot yourself if you have an api key.
+
 ### Features
 ✅ in-chat console
 ✅ power control
