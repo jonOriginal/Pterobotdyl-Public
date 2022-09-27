@@ -1,8 +1,17 @@
 
 # Pterobotdyl - Public
- Pterodactyl client discord bot
  
- Discord bot for client control for pterodactyl.
+ Discord bot for client control for pterodactyl. 
+Due to the project being in alpha, there may be bugs that I have not caught, feel free to message me on discord at 12340#0567, or create a pull request.
+
+### Features
+✅ in-chat console
+✅ power control
+✅ backup management
+Planned:
+❔File manager
+❔Panel Administrator mode
+
  ### Dependancies:
  - Python 3.7 - 3.10
 
@@ -37,11 +46,22 @@
 4. start the bot
 	```python3 main.py```
 
-### Usage
-
-Invite the bot to the discord server you will be using. Create a channel where the bot will only be accessable to administrators. 
+5. invite the bot to the discord server you will be using. Create a channel where the bot will only be accessable to administrators. 
 Bot permissions:
 - manage channels 
 - send messages, manage messages, embed links, read message history, use slash commands
 
-Register the bot with /register, enter your pterodactyl api key, then select the server you will be managing
+6. Register the bot with /register, enter your pterodactyl api key, then select the server you will be managing.
+### Usage
+
+- do ```/register ``` in the discord channel the bot will be used in. Administrators can only run this. You will have to enter your pterodactyl api key.
+
+- ```/deregister``` to reset api key and server selection.
+
+- ```/power``` to turn off, start, and restart your server.
+
+- ```/backup manage``` to delete and download backups.
+
+- ```/backup create``` to create a new backup.
+
+- messsages starting with ```/``` will be sent to the server as commands.
