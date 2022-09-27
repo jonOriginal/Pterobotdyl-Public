@@ -1,4 +1,3 @@
-import cProfile
 import os
 
 import discord
@@ -58,6 +57,7 @@ class Bot(commands.Bot):
         if isinstance(error, discord.errors.CheckFailure):
             pass
         elif isinstance(error, discord.errors.ApplicationCommandInvokeError):
+            print(error)
             self[str(ctx.guild.id)].cogs_enabled = False
             await ctx.respond('Server may be removed or suspended. Run /reconnect to check again.', ephemeral=True)
         else:
@@ -81,4 +81,4 @@ def main():
 
 
 if __name__ == '__main__':
-    cProfile.run('main()')
+    main()

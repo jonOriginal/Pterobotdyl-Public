@@ -18,7 +18,7 @@ class Registration(commands.Cog):
             error_embed = discord.Embed(title='Already Registered', color=discord.Color.blue())
             return await ctx.respond(embed=error_embed, ephemeral=True)
         else:
-            return await ctx.send_modal(modal=RegisterView(bot=self.bot, title='Server Registration'))
+            return await ctx.send_modal(modal=ApiView(bot=self.bot, title='Server Registration'))
 
     @commands.has_permissions(administrator=True)
     @slash_command(name="deregister")
@@ -33,47 +33,57 @@ class Registration(commands.Cog):
             await ctx.respond(embed=error_embed)
 
 
-class RegisterView(discord.ui.Modal):
+class ApiView(discord.ui.Modal):
     def __init__(self, bot, **kwargs):
         super().__init__(**kwargs)
         self.bot = bot
-        self.add_item(discord.ui.InputText(label="Server Name", required=True))
         self.add_item(discord.ui.InputText(label="Api Key", required=True))
 
     async def callback(self, interaction):
-        server_name = self.children[0].value
-        api_key = self.children[1].value
-        guild_id = str(interaction.guild.id)
-        channel_id = str(interaction.channel.id)
+        api_key = self.children[0].value
         try:
             api = self.bot.api(api_key)
-            server = self.get_server(api, server_name)
-            self.bot[guild_id] = {'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server,
-                                  'api_key': api_key}
-        except IndexError:
-            error_embed = discord.Embed(title='Invalid server name', color=discord.Color.red())
-            return await interaction.response.send_message(embed=error_embed)
+            servers = api.client.servers.list_servers()
+            server_dict = {server[i]['attributes']['identifier']: server[i]['attributes']['name'] for i, server in
+                           enumerate(servers)}
+            await interaction.response.send_message('Select server:', view=SelectView(server_dict, self.bot, api_key),
+                                                    ephemeral=True)
         except requests.exceptions.HTTPError:
             error_embed = discord.Embed(title='Invalid api key', color=discord.Color.red())
-            return await interaction.response.send_message(embed=error_embed)
+            return await interaction.response.send_message(embed=error_embed, ephemeral=True)
         except:
             traceback.print_exc()
             error_embed = discord.Embed(title='Something went wrong.', color=discord.Color.dark_red())
             return await interaction.response.send_message(embed=error_embed)
-        else:
-            success_embed = discord.Embed(title='Registered Successfully', color=discord.Color.green())
-            return await interaction.response.send_message(embed=success_embed)
 
-    @staticmethod
-    def get_server(api, server_name):
-        server_details = api.client.servers.list_servers()
-        server_list = {
-            server_details[i]['attributes']['name'].lower(): server_details[i]['attributes']['identifier']
-            for i, e in enumerate(server_details)}
-        if server_name.lower() in server_list:
-            return server_list[server_name.lower()]
-        else:
-            raise IndexError
+
+class SelectView(discord.ui.View):
+    servers = []
+
+    def __init__(self, servers, bot, api_key):
+        super().__init__()
+        self.bot = bot
+        self.api_key = api_key
+        for value, name in servers.items():
+            self.servers.append(discord.SelectOption(label=str(name), value=str(value)))
+
+    @discord.ui.select(
+        placeholder="Select Server:",
+        # the placeholder text that will be displayed if nothing is selected
+        options=servers,
+        min_values=1,
+        max_values=1
+    )
+    async def select_callback(self, select, interaction):
+        self.servers.clear()
+        server = str(select.values[0])
+        api_key = self.api_key
+        guild_id = str(interaction.guild.id)
+        channel_id = str(interaction.channel.id)
+
+        self.bot[guild_id] = {'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server, 'api_key': api_key}
+        embed = discord.Embed(title='Successfully registered', color=discord.Color.green())
+        await interaction.response.send_message(embed=embed)
 
 
 def setup(bot):
