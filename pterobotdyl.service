@@ -2,8 +2,9 @@
 Description=Pterobotdyl Discord Bot
 After=multi-user.target
 [Service]
+WorkingDirectory=/home/<user>/Pterobotdyl-Public
 Type=simple
 Restart=always
-ExecStart=/usr/bin/python3 /home/<username>/Pterobotdyl-Public
+ExecStart=python3 /home/<user>/Pterobotdyl-Public/main.py
 [Install]
 WantedBy=multi-user.target
