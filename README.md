@@ -15,17 +15,7 @@ Planned:
  ### Dependancies:
  - Python 3.7 - 3.10
 
-- Pycord
-	```pip install py-cord```
-
-- Pydactyl
-	```pip install py-dactyl```
-
-- Websockets
-	```pip install websockets```
-
-- Requests
-	```pip install requests```
+ -```pip install -r requirements.txt```
 
 ### Preparation:
 - You need to have a discord application created at [Discord Developer Portal — My Applications](https://discord.com/developers/applications). You will need to enable message intents.
