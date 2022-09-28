@@ -2,7 +2,7 @@
 # Pterobotdyl - Public
  
  Discord bot for client control for pterodactyl. 
-Due to the project being in alpha, there may be bugs that I have not caught, feel free to message me on discord at 12340#0567, or create a pull request.
+Due to the project being in alpha, there may be bugs that I have not caught, feel free to message me on discord at 12340#0567, or submit and issue or pull request.
 
 ### Features
 ✅ in-chat console
