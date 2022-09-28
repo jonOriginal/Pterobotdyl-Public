@@ -33,7 +33,8 @@ class Bot(commands.Bot):
 
         assigned_channel = self.get_channel(int(channel_id))
         self.instances[guild_id] = Instance(data, assigned_channel, self)
-        self.db[guild_id] = {'channel': channel_id, 'server_id': server_id, 'api_key': api_key}
+        self.db[guild_id] = {'channel': channel_id,
+                             'server_id': server_id, 'api_key': api_key}
 
     def __delitem__(self, key):
         del self.instances[key]
@@ -74,9 +75,12 @@ class Bot(commands.Bot):
 def main():
     bot = Bot(command_prefix='$', intents=intents)
     for folder_name in os.listdir('./cogs'):  # for every folder in cogs
-        for filename in os.listdir(f'./cogs/{folder_name}'):  # for every file in a folder in cogs
-            if filename.endswith('.py'):  # if the file is a python file and if the file is a cog
-                bot.load_extension(f'cogs.{folder_name}.{filename[:-3]}')  # load the extension
+        # for every file in a folder in cogs
+        for filename in os.listdir(f'./cogs/{folder_name}'):
+            # if the file is a python file and if the file is a cog
+            if filename.endswith('.py'):
+                # load the extension
+                bot.load_extension(f'cogs.{folder_name}.{filename[:-3]}')
     bot.run(TOKEN)
 
 

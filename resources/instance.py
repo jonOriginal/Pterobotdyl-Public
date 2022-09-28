@@ -32,7 +32,8 @@ class Instance:
         if str(ctx.channel.id) == self.channel_id and self.cogs_enabled:
             return True
         elif not self.cogs_enabled:
-            embed = discord.Embed(title='Server is unreachable, it may be suspended', color=discord.Color.dark_red())
+            embed = discord.Embed(
+                title='Server is unreachable, it may be suspended', color=discord.Color.dark_red())
             await ctx.respond(embed=embed, ephemeral=True)
         else:
             await ctx.respond('No perms?')
@@ -56,16 +57,19 @@ class Instance:
     @tasks.loop(seconds=5)
     async def pong_api(self):
         try:
-            self.dactyl.client.servers.get_server_utilization(self.server_id, detail=False)
+            self.dactyl.client.servers.get_server_utilization(
+                self.server_id, detail=False)
         except requests.HTTPError:
             if self.cogs_enabled:
                 self.cogs_enabled = False
-                embed = discord.Embed(title='Disconnected', color=discord.Color.red())
+                embed = discord.Embed(
+                    title='Disconnected', color=discord.Color.red())
                 await self.channel.send(embed=embed)
         else:
             if not self.cogs_enabled:
                 self.cogs_enabled = True
-                embed = discord.Embed(title='Connected', color=discord.Color.green())
+                embed = discord.Embed(
+                    title='Connected', color=discord.Color.green())
                 await self.channel.send(embed=embed)
 
     @tasks.loop(minutes=7.0)
@@ -78,7 +82,8 @@ class Instance:
         try:
             await self.channel.edit(topic=topic)
         except discord.errors.Forbidden:
-            embed = discord.Embed(title='⚠️Missing manage channel permissions ⚠️', color=discord.Color.brand_red())
+            embed = discord.Embed(
+                title='⚠️Missing manage channel permissions ⚠️', color=discord.Color.brand_red())
             await self.channel.send(embed=embed)
 
     async def get_last_message(self):
@@ -93,7 +98,8 @@ class Instance:
         async for message in websocket:
             message = literal_eval(message)
             if message['event'] == 'console output':
-                stripped = re.sub('(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', message['args'][0])
+                stripped = re.sub(
+                    '(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', message['args'][0])
                 self.message_queue.append(stripped)
 
             if message['event'] == 'stats':
@@ -108,7 +114,8 @@ class Instance:
 
     async def init_connect(self):
         try:
-            credentials = self.dactyl.client.servers.get_websocket(self.server_id)['data']
+            credentials = self.dactyl.client.servers.get_websocket(self.server_id)[
+                'data']
         except requests.exceptions.HTTPError:
             self.cogs_enabled = False
             embed = discord.Embed(title='Websocket is unreachable, your server may be suspended.',
@@ -127,7 +134,8 @@ class Instance:
         self.dactyl.client.servers.backups.create_backup(self.server_id)
 
     def delete_backup(self, backup_id):
-        self.dactyl.client.servers.backups.delete_backup(self.server_id, backup_id)
+        self.dactyl.client.servers.backups.delete_backup(
+            self.server_id, backup_id)
 
     def download_backup(self, backup_id):
         return self.dactyl.client.servers.backups.get_backup_download(self.server_id, backup_id)
@@ -135,7 +143,7 @@ class Instance:
     def get_backups(self):
         data = self.dactyl.client.servers.backups.list_backups(self.server_id)
         api_response = literal_eval(str(data))['data']
-        backups = {backup['attributes']['uuid']: backup['attributes']['name'] for backup in api_response}
+        backups = {backup['attributes']['uuid']                   : backup['attributes']['name'] for backup in api_response}
         return backups
 
     def send_power_action(self, power):
@@ -143,4 +151,5 @@ class Instance:
 
     def send_command(self, message):
         if str(message.channel.id) == str(self.channel_id):
-            self.dactyl.client.servers.send_console_command(self.server_id, message.content[1:])
+            self.dactyl.client.servers.send_console_command(
+                self.server_id, message.content[1:])
