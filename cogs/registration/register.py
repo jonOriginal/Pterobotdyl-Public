@@ -15,7 +15,8 @@ class Registration(commands.Cog):
     async def register(self, ctx):
         guild = str(ctx.guild.id)
         if guild in self.bot:
-            error_embed = discord.Embed(title='Already Registered', color=discord.Color.blue())
+            error_embed = discord.Embed(
+                title='Already Registered', color=discord.Color.blue())
             return await ctx.respond(embed=error_embed, ephemeral=True)
         else:
             return await ctx.send_modal(modal=ApiView(bot=self.bot, title='Server Registration'))
@@ -26,10 +27,12 @@ class Registration(commands.Cog):
         guild = str(ctx.guild.id)
         if guild in self.bot:
             del self.bot[guild]
-            embed = discord.Embed(title='Server Deregistered', color=discord.Color.green())
+            embed = discord.Embed(
+                title='Server Deregistered', color=discord.Color.green())
             await ctx.respond(embed=embed)
         else:
-            error_embed = discord.Embed(title='This server is not registered', color=discord.Color.dark_red())
+            error_embed = discord.Embed(
+                title='This server is not registered', color=discord.Color.dark_red())
             await ctx.respond(embed=error_embed)
 
 
@@ -49,11 +52,13 @@ class ApiView(discord.ui.Modal):
             await interaction.response.send_message('Select server:', view=SelectView(server_dict, self.bot, api_key),
                                                     ephemeral=True)
         except requests.exceptions.HTTPError:
-            error_embed = discord.Embed(title='Invalid api key', color=discord.Color.red())
+            error_embed = discord.Embed(
+                title='Invalid api key', color=discord.Color.red())
             return await interaction.response.send_message(embed=error_embed, ephemeral=True)
         except:
             traceback.print_exc()
-            error_embed = discord.Embed(title='Something went wrong.', color=discord.Color.dark_red())
+            error_embed = discord.Embed(
+                title='Something went wrong.', color=discord.Color.dark_red())
             return await interaction.response.send_message(embed=error_embed)
 
 
@@ -65,7 +70,8 @@ class SelectView(discord.ui.View):
         self.bot = bot
         self.api_key = api_key
         for value, name in servers.items():
-            self.servers.append(discord.SelectOption(label=str(name), value=str(value)))
+            self.servers.append(discord.SelectOption(
+                label=str(name), value=str(value)))
 
     @discord.ui.select(
         placeholder="Select Server:",
@@ -81,8 +87,10 @@ class SelectView(discord.ui.View):
         guild_id = str(interaction.guild.id)
         channel_id = str(interaction.channel.id)
 
-        self.bot[guild_id] = {'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server, 'api_key': api_key}
-        embed = discord.Embed(title='Successfully registered', color=discord.Color.green())
+        self.bot[guild_id] = {
+            'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server, 'api_key': api_key}
+        embed = discord.Embed(
+            title='Successfully registered', color=discord.Color.green())
         await interaction.response.send_message(embed=embed)
 
 

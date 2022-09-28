@@ -12,7 +12,8 @@ class Power(commands.Cog):
         try:
             return await self.bot[str(ctx.guild.id)].check_perms(ctx)
         except KeyError:
-            embed = discord.Embed(title='Use /register to use this command', color=discord.Color.dark_gold())
+            embed = discord.Embed(
+                title='Use /register to use this command', color=discord.Color.dark_gold())
             await ctx.respond(embed=embed, ephemeral=True)
 
     @slash_command(name="power")
@@ -27,7 +28,8 @@ class Power(commands.Cog):
             color = discord.Color.gold()
         else:
             color = discord.Color.blurple()
-        embed = discord.Embed(title=f'Server is currently {status}', color=color)
+        embed = discord.Embed(
+            title=f'Server is currently {status}', color=color)
         await ctx.respond(f'power options:', embed=embed, view=PowerView(self.bot, ctx), delete_after=20,
                           ephemeral=True)
 
@@ -47,7 +49,8 @@ class PowerView(View):
             await interaction.response.send_message("Server already started.", ephemeral=True)
         else:
             self.send_power(interaction.guild_id, "start")
-            embed = discord.Embed(title='Server Started', color=discord.Color.green())
+            embed = discord.Embed(title='Server Started',
+                                  color=discord.Color.green())
             await interaction.response.send_message(embed=embed)
 
     @discord.ui.button(label="Stop", style=discord.ButtonStyle.red)
@@ -56,13 +59,15 @@ class PowerView(View):
             await interaction.response.send_message("Server already stopped.", ephemeral=True)
         else:
             self.send_power(interaction.guild_id, "stop")
-            embed = discord.Embed(title='Server Stopped', color=discord.Color.red())
+            embed = discord.Embed(title='Server Stopped',
+                                  color=discord.Color.red())
             await interaction.response.send_message(embed=embed)
 
     @discord.ui.button(label="Restart", style=discord.ButtonStyle.blurple)
     async def restart(self, interaction: discord.Interaction):
         self.send_power(interaction.guild_id, "restart")
-        embed = discord.Embed(title='Server Restarted', color=discord.Color.gold())
+        embed = discord.Embed(title='Server Restarted',
+                              color=discord.Color.gold())
         await interaction.response.send_message(embed=embed)
 
 

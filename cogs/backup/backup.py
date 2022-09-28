@@ -11,7 +11,8 @@ class Backup(commands.Cog):
         try:
             return await self.bot[str(ctx.guild.id)].check_perms(ctx)
         except KeyError:
-            embed = discord.Embed(title='Use /register to use this command', color=discord.Color.dark_gold())
+            embed = discord.Embed(
+                title='Use /register to use this command', color=discord.Color.dark_gold())
             await ctx.respond(embed=embed, ephemeral=True)
 
     group = SlashCommandGroup("backup", "Backup Commands")
@@ -41,7 +42,8 @@ class BackupView(discord.ui.View):
         super().__init__(timeout=0)
         self.option_list.clear()
         for value, name in options.items():
-            self.option_list.append(discord.SelectOption(label=str(name), value=str(value)))
+            self.option_list.append(discord.SelectOption(
+                label=str(name), value=str(value)))
 
     @discord.ui.select(
         placeholder="Select Backup:",
@@ -67,8 +69,10 @@ class BackupView(discord.ui.View):
 
     @discord.ui.button(label="Download", style=discord.ButtonStyle.blurple)
     async def download(self, interaction: discord.Interaction):
-        link = self.bot[str(interaction.guild_id)].download_backup(self.selected)
-        embed = discord.Embed(title="Download Link", description=f"[Click Here]({link['attributes']['url']})")
+        link = self.bot[str(interaction.guild_id)
+                        ].download_backup(self.selected)
+        embed = discord.Embed(
+            title="Download Link", description=f"[Click Here]({link['attributes']['url']})")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.message.delete(delay=0)
 
