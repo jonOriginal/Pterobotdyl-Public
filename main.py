@@ -24,7 +24,7 @@ class Bot(commands.Bot):
         self.instances = {}
 
     def __getitem__(self, item):
-        return self.instances[item]
+        return self.instances[str(item)]
 
     def __setitem__(self, guild_id, data):
         channel_id = data["channel_id"]
@@ -58,17 +58,23 @@ class Bot(commands.Bot):
             pass
         elif isinstance(error, discord.errors.ApplicationCommandInvokeError):
             print(error)
-            self[str(ctx.guild.id)].cogs_enabled = False
+            self[str(ctx.guild.id)].active = False
             await ctx.respond('Server may be removed or suspended. Run /reconnect to check again.', ephemeral=True)
         else:
             print(type(error))
             print(error)
 
+    async def on_error(self, event_method: str, *args, **kwargs) -> None:
+        print(event_method)
+
     async def on_message(self, message):
         if message.author == self.user:
             return
-        if str(message.guild.id) in self.instances and message.content[0] == '/':
-            self.instances[str(message.guild.id)].send_command(message)
+        try:
+            if str(message.guild.id) in self.instances and message.content[0] == '/':
+                self.instances[str(message.guild.id)].send_command(message)
+        except IndexError:
+            return
 
 
 def main():

@@ -1,11 +1,17 @@
 import asyncio
+import os
 import re
 from ast import literal_eval
 
+import aiofiles
+import aiohttp
 import discord.errors
 import requests
+import datetime
 import websockets
 from discord.ext import tasks
+
+import tempfile
 
 
 class Instance:
@@ -18,30 +24,33 @@ class Instance:
 
         self.bot = bot
         self.channel = scope
-        self.dactyl = self.bot.api(self.api_key)
 
         self.stats = {}
         self.message_queue = []
 
-        self.cogs_enabled = True
+        self.dactyl = None
+        self.active = False
+        self.console = False
         self.pong_api.start()
+        self.console_pong.start()
         self.send_message.start()
-        asyncio.ensure_future(self.init_connect())
+        self.connection = None
 
     async def check_perms(self, ctx):
-        if str(ctx.channel.id) == self.channel_id and self.cogs_enabled:
+        if str(ctx.channel.id) == self.channel_id and self.active:
             return True
-        elif not self.cogs_enabled:
+        elif not self.active:
             embed = discord.Embed(title='Server is unreachable, it may be suspended', color=discord.Color.dark_red())
             await ctx.respond(embed=embed, ephemeral=True)
+            return False
         else:
             await ctx.respond('No perms?')
             return False
 
-    @tasks.loop(seconds=0.1)
+    @tasks.loop(seconds=0.2)
     async def send_message(self):
         if len(self.message_queue) == 0:
-            pass
+            return
         else:
             joined = '\n'.join(self.message_queue)
             previous_message = await self.get_last_message()
@@ -56,17 +65,31 @@ class Instance:
     @tasks.loop(seconds=5)
     async def pong_api(self):
         try:
+            current_time = datetime.datetime.now()
+            self.dactyl = self.bot.api(self.api_key)
             self.dactyl.client.servers.get_server_utilization(self.server_id, detail=False)
-        except requests.HTTPError:
-            if self.cogs_enabled:
-                self.cogs_enabled = False
-                embed = discord.Embed(title='Disconnected', color=discord.Color.red())
-                await self.channel.send(embed=embed)
+        except requests.HTTPError as e:
+            status_code = e.response.status_code
+            if status_code != 401:
+                print(e)
+            elif self.active:
+                self.active = False
+                print("disconnected " + current_time.strftime("%Y-%m-%d %H:%M:%S"))
         else:
-            if not self.cogs_enabled:
-                self.cogs_enabled = True
-                embed = discord.Embed(title='Connected', color=discord.Color.green())
-                await self.channel.send(embed=embed)
+            if not self.active:
+                self.active = True
+                print("connected " + current_time.strftime("%Y-%m-%d %H:%M:%S"))
+
+    @tasks.loop(seconds=5)
+    async def console_pong(self):
+        if not self.console:
+            try:
+                self.connection = asyncio.ensure_future(self.init_connect())
+                self.console = True
+            except Exception as e:
+                print(e)
+                self.connection = None
+                self.console = False
 
     @tasks.loop(minutes=7.0)
     async def set_topic(self):
@@ -89,7 +112,7 @@ class Instance:
         except IndexError:
             return None
 
-    async def handler(self, websocket: websockets.WebSocketClientProtocol):
+    async def message_handler(self, websocket: websockets.WebSocketClientProtocol):
         async for message in websocket:
             message = literal_eval(message)
             if message['event'] == 'console output':
@@ -104,21 +127,15 @@ class Instance:
             if message['event'] in ('token expiring', 'token expired'):
                 print('refreshing socket')
                 await websocket.close()
-                asyncio.ensure_future(self.init_connect())
+                self.connection.cancel()
+                self.connection = asyncio.ensure_future(self.init_connect())
 
     async def init_connect(self):
-        try:
-            credentials = self.dactyl.client.servers.get_websocket(self.server_id)['data']
-        except requests.exceptions.HTTPError:
-            self.cogs_enabled = False
-            embed = discord.Embed(title='Websocket is unreachable, your server may be suspended.',
-                                  color=discord.Color.red())
-            await self.channel.send(embed=embed)
-        else:
-            token, socket = credentials['token'], credentials['socket']
-            async with websockets.connect(socket, origin=self.bot.ADDRESS) as ws:
-                await ws.send('{"event":"auth","args":["' + token + '"]}')
-                await self.handler(ws)
+        credentials = self.dactyl.client.servers.get_websocket(self.server_id)['data']
+        token, socket = credentials['token'], credentials['socket']
+        async with websockets.connect(socket, origin=self.bot.ADDRESS) as ws:
+            await ws.send('{"event":"auth","args":["' + token + '"]}')
+            await self.message_handler(ws)
 
     def send_power(self, action):
         self.dactyl.client.servers.send_power_action(self.server_id, action)
@@ -142,5 +159,58 @@ class Instance:
         self.dactyl.client.servers.send_power_action(self.server_id, power)
 
     def send_command(self, message):
-        if str(message.channel.id) == str(self.channel_id):
+        if not self.active:
+            return
+        elif str(message.channel.id) == str(self.channel_id):
             self.dactyl.client.servers.send_console_command(self.server_id, message.content[1:])
+
+    def get_files(self, path=None):
+        data = self.dactyl.client.servers.files.list_files(self.server_id, path)['data']
+        directory = {file['attributes']['name']: file['attributes']['is_file'] for file in data}
+        return directory
+
+    def get_size(self, path, file):
+        data = self.dactyl.client.servers.files.list_files(self.server_id, path)['data']
+        size = list(filter(lambda x: (x['attributes']['name'] == file), data))[0]['attributes']['size']
+        return size
+
+    def delete_file(self, filepath):
+        split_filepath = filepath.split('/')
+        file = split_filepath[-1]
+        path = '/' + '/'.join(split_filepath[:-1])
+        self.dactyl.client.servers.files.delete_files(self.server_id, [file], path)
+
+    def file_contents(self, path):
+        return self.dactyl.client.servers.files.get_file_contents(self.server_id, path)
+
+    def get_file_download(self, filepath):
+        return self.dactyl.client.servers.files.download_file(self.server_id, filepath)
+
+    def get_upload(self):
+        content = self.dactyl.client.servers.files.get_upload_file_url(self.server_id)
+        return content
+
+    def write_file(self, file_url, upload_url):
+        sema = asyncio.BoundedSemaphore(5)
+
+        async def fetch_file(url):
+            temp_dir = tempfile.TemporaryDirectory()
+            fname = file_url.split("/")[-1]
+
+            async with sema, aiohttp.ClientSession() as session:
+                async with session.get(url) as resp:
+                    assert resp.status == 200
+                    data = await resp.read()
+
+            async with aiofiles.open(os.path.join(temp_dir.name, fname), "wb") as outfile:
+                await outfile.write(data)
+
+            with open(os.path.join(temp_dir.name, fname), "rb") as f:
+                r = requests.post(upload_url, f)
+                print(r)
+
+            temp_dir.cleanup()
+
+        loop = asyncio.get_event_loop()
+        task = loop.create_task(fetch_file(file_url))
+        asyncio.ensure_future(task)
