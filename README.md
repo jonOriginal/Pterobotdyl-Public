@@ -2,7 +2,7 @@
 # Pterobotdyl - Public
  
  Discord bot for client control for pterodactyl. 
-Due to the project being in alpha, there may be bugs that I have not caught, feel free to message me on discord at 12340#0567, or create a pull request.
+Due to the project being in alpha, there may be bugs that I have not caught, feel free to message me on discord at 12340#0567, or submit and issue or pull request.
 
 ### Features
 ✅ in-chat console
@@ -15,17 +15,7 @@ Planned:
  ### Dependancies:
  - Python 3.7 - 3.10
 
-- Pycord
-	```pip install py-cord```
-
-- Pydactyl
-	```pip install py-dactyl```
-
-- Websockets
-	```pip install websockets```
-
-- Requests
-	```pip install requests```
+ -```pip install -r requirements.txt```
 
 ### Preparation:
 - You need to have a discord application created at [Discord Developer Portal — My Applications](https://discord.com/developers/applications). You will need to enable message intents.
@@ -65,3 +55,13 @@ Bot permissions:
 - ```/backup create``` to create a new backup.
 
 - messsages starting with ```/``` will be sent to the server as commands.
+
+### Optional
+Adding the program as a service:
+- cd into the program directory
+- run ```nano pterobotdyl.service```
+- change the ```WorkingDirectory``` to the path of the program
+- change ```ExecStart``` to the path to the main.py file
+- run ```sudo mv pterobotdyl.service /etc/systemd/system/pterobotdyl.service``` then ```sudo systemctl daemon-reload```
+- enable the service with ```sudo systemctl enable pterobotdyl.service``` 
+- start the service with ```sudo systemctl start pterobotdyl.service```

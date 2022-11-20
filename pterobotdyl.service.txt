@@ -1,9 +1,0 @@
-[Unit]
-Description=Pterobotdyl Discord Bot
-After=multi-user.target
-[Service]
-Type=simple
-Restart=always
-ExecStart=/usr/bin/python3 /home/<username>/Pterobotdyl-Public
-[Install]
-WantedBy=multi-user.target
