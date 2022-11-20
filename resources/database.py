@@ -20,7 +20,8 @@ class Database:
     def __contains__(self, guild_id):
         try:
             with self.connection:
-                cursor = self.connection.execute("SELECT * FROM server WHERE guild_id = '%s'; --" % (guild_id, ))
+                cursor = self.connection.execute(
+                    "SELECT * FROM server WHERE guild_id = '%s'; --" % (guild_id, ))
                 result = cursor.fetchone()
                 if result:
                     return True
@@ -32,7 +33,8 @@ class Database:
 
     def __getitem__(self, guild_id):
         try:
-            cursor = self.connection.execute("SELECT * FROM server WHERE guild_id = '%s'; --" % (guild_id, ))
+            cursor = self.connection.execute(
+                "SELECT * FROM server WHERE guild_id = '%s'; --" % (guild_id, ))
             result = cursor.fetchone()
             return result
         except sqlite3.Error as err:
@@ -41,7 +43,8 @@ class Database:
     def __setitem__(self, guild_id, value):
         try:
             command = "INSERT INTO server (guild_id, channel_id, server_id, api_key)" \
-                      " VALUES ('%s','%s','%s','%s')" % (guild_id, value['channel'], value['server_id'], value['api_key'])
+                      " VALUES ('%s','%s','%s','%s')" % (
+                          guild_id, value['channel'], value['server_id'], value['api_key'])
             self.connection.execute(command)
             self.connection.commit()
 
@@ -50,7 +53,8 @@ class Database:
 
     def __delitem__(self, guild_id):
         try:
-            self.connection.execute("DELETE FROM server WHERE guild_id = '%s';" % (guild_id, ))
+            self.connection.execute(
+                "DELETE FROM server WHERE guild_id = '%s';" % (guild_id, ))
             self.connection.commit()
         except sqlite3.Error as err:
             print(f"Something went wrong: {err}")
