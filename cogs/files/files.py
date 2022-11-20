@@ -17,4 +17,3 @@ class Files(commands.Cog):
 def setup(bot):
     return
     bot.add_cog(Files(bot))
-

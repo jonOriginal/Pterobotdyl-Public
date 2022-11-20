@@ -28,8 +28,10 @@ class BackupView(discord.ui.View):
 
     @discord.ui.button(label="Download", style=discord.ButtonStyle.blurple)
     async def download(self, interaction: discord.Interaction):
-        link = self.bot[str(interaction.guild_id)].download_backup(self.selected)
-        embed = discord.Embed(title="Download Link", description=f"[Click Here]({link['attributes']['url']})")
+        link = self.bot[str(interaction.guild_id)
+                        ].download_backup(self.selected)
+        embed = discord.Embed(
+            title="Download Link", description=f"[Click Here]({link['attributes']['url']})")
         await interaction.response.send_message(embed=embed, ephemeral=True)
         await interaction.message.delete(delay=0)
 

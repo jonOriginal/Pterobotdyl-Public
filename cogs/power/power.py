@@ -24,7 +24,8 @@ class Power(commands.Cog):
         else:
             color = discord.Color.blurple()
 
-        embed = discord.Embed(title=f'Server is currently {status}', color=color)
+        embed = discord.Embed(
+            title=f'Server is currently {status}', color=color)
         await ctx.respond(f'power options:', embed=embed, view=PowerView(self.bot, ctx), delete_after=20,
                           ephemeral=True)
 

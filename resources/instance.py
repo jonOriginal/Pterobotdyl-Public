@@ -40,7 +40,8 @@ class Instance:
         if str(ctx.channel.id) == self.channel_id and self.active:
             return True
         elif not self.active:
-            embed = discord.Embed(title='Server is unreachable, it may be suspended', color=discord.Color.dark_red())
+            embed = discord.Embed(
+                title='Server is unreachable, it may be suspended', color=discord.Color.dark_red())
             await ctx.respond(embed=embed, ephemeral=True)
             return False
         else:
@@ -67,7 +68,8 @@ class Instance:
         try:
             current_time = datetime.datetime.now()
             self.dactyl = self.bot.api(self.api_key)
-            self.dactyl.client.servers.get_server_utilization(self.server_id, detail=False)
+            self.dactyl.client.servers.get_server_utilization(
+                self.server_id, detail=False)
         except requests.HTTPError as e:
             status_code = e.response.status_code
             if status_code != 401:
@@ -101,7 +103,8 @@ class Instance:
         try:
             await self.channel.edit(topic=topic)
         except discord.errors.Forbidden:
-            embed = discord.Embed(title='⚠️Missing manage channel permissions ⚠️', color=discord.Color.brand_red())
+            embed = discord.Embed(
+                title='⚠️Missing manage channel permissions ⚠️', color=discord.Color.brand_red())
             await self.channel.send(embed=embed)
 
     async def get_last_message(self):
@@ -116,7 +119,8 @@ class Instance:
         async for message in websocket:
             message = literal_eval(message)
             if message['event'] == 'console output':
-                stripped = re.sub('(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', message['args'][0])
+                stripped = re.sub(
+                    '(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]', '', message['args'][0])
                 self.message_queue.append(stripped)
 
             if message['event'] == 'stats':
@@ -131,7 +135,8 @@ class Instance:
                 self.connection = asyncio.ensure_future(self.init_connect())
 
     async def init_connect(self):
-        credentials = self.dactyl.client.servers.get_websocket(self.server_id)['data']
+        credentials = self.dactyl.client.servers.get_websocket(self.server_id)[
+            'data']
         token, socket = credentials['token'], credentials['socket']
         async with websockets.connect(socket, origin=self.bot.ADDRESS) as ws:
             await ws.send('{"event":"auth","args":["' + token + '"]}')
@@ -144,7 +149,8 @@ class Instance:
         self.dactyl.client.servers.backups.create_backup(self.server_id)
 
     def delete_backup(self, backup_id):
-        self.dactyl.client.servers.backups.delete_backup(self.server_id, backup_id)
+        self.dactyl.client.servers.backups.delete_backup(
+            self.server_id, backup_id)
 
     def download_backup(self, backup_id):
         return self.dactyl.client.servers.backups.get_backup_download(self.server_id, backup_id)
@@ -152,7 +158,7 @@ class Instance:
     def get_backups(self):
         data = self.dactyl.client.servers.backups.list_backups(self.server_id)
         api_response = literal_eval(str(data))['data']
-        backups = {backup['attributes']['uuid']: backup['attributes']['name'] for backup in api_response}
+        backups = {backup['attributes']['uuid']                   : backup['attributes']['name'] for backup in api_response}
         return backups
 
     def send_power_action(self, power):
@@ -162,23 +168,28 @@ class Instance:
         if not self.active:
             return
         elif str(message.channel.id) == str(self.channel_id):
-            self.dactyl.client.servers.send_console_command(self.server_id, message.content[1:])
+            self.dactyl.client.servers.send_console_command(
+                self.server_id, message.content[1:])
 
     def get_files(self, path=None):
-        data = self.dactyl.client.servers.files.list_files(self.server_id, path)['data']
-        directory = {file['attributes']['name']: file['attributes']['is_file'] for file in data}
+        data = self.dactyl.client.servers.files.list_files(self.server_id, path)[
+            'data']
+        directory = {file['attributes']['name']                     : file['attributes']['is_file'] for file in data}
         return directory
 
     def get_size(self, path, file):
-        data = self.dactyl.client.servers.files.list_files(self.server_id, path)['data']
-        size = list(filter(lambda x: (x['attributes']['name'] == file), data))[0]['attributes']['size']
+        data = self.dactyl.client.servers.files.list_files(self.server_id, path)[
+            'data']
+        size = list(filter(lambda x: (x['attributes']['name'] == file), data))[
+            0]['attributes']['size']
         return size
 
     def delete_file(self, filepath):
         split_filepath = filepath.split('/')
         file = split_filepath[-1]
         path = '/' + '/'.join(split_filepath[:-1])
-        self.dactyl.client.servers.files.delete_files(self.server_id, [file], path)
+        self.dactyl.client.servers.files.delete_files(
+            self.server_id, [file], path)
 
     def file_contents(self, path):
         return self.dactyl.client.servers.files.get_file_contents(self.server_id, path)
@@ -187,7 +198,8 @@ class Instance:
         return self.dactyl.client.servers.files.download_file(self.server_id, filepath)
 
     def get_upload(self):
-        content = self.dactyl.client.servers.files.get_upload_file_url(self.server_id)
+        content = self.dactyl.client.servers.files.get_upload_file_url(
+            self.server_id)
         return content
 
     def write_file(self, file_url, upload_url):

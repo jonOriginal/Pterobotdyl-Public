@@ -27,10 +27,12 @@ class ApiView(discord.ui.Modal):
             await interaction.response.send_message('Select server:', view=select_server_view, ephemeral=True)
 
         except requests.exceptions.HTTPError:
-            error_embed = discord.Embed(title='Invalid api key', color=discord.Color.red())
+            error_embed = discord.Embed(
+                title='Invalid api key', color=discord.Color.red())
             return await interaction.response.send_message(embed=error_embed, ephemeral=True)
 
         except:
             traceback.print_exc()
-            error_embed = discord.Embed(title='Something went wrong.', color=discord.Color.dark_red())
+            error_embed = discord.Embed(
+                title='Something went wrong.', color=discord.Color.dark_red())
             return await interaction.response.send_message(embed=error_embed)

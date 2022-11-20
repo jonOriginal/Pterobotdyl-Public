@@ -24,7 +24,8 @@ class DefaultButton(discord.ui.Button):
 
     async def callback(self, interaction):
         filepath = f'{self.view.path}{self.custom_id}'
-        size = self.bot[str(interaction.guild_id)].get_size(self.view.path, self.custom_id)
+        size = self.bot[str(interaction.guild_id)].get_size(
+            self.view.path, self.custom_id)
         view = FileView(self.bot, interaction, filepath, size, self.custom_id)
         embed = discord.Embed(title=f'{self.custom_id[:79]}, {size/1000}kb')
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
@@ -53,7 +54,8 @@ class DirectoryView(discord.ui.View):
         self.add_item(folders)
         for name, is_file in directory.items():
             if is_file:
-                self.add_item(DefaultButton(bot, label=name[:79], custom_id=name))
+                self.add_item(DefaultButton(
+                    bot, label=name[:79], custom_id=name))
             elif not is_file:
                 folders.add_option(label=name[:79], value=name)
         if not folders.options:
@@ -77,11 +79,14 @@ class DirectoryView(discord.ui.View):
 
         attachment_message = await self.bot.wait_for("message", check=check, timeout=60)
         if all([x.size < 7000000 for x in attachment_message.attachments]):
-            attachments_url: list = [attachment.url for attachment in attachment_message.attachments][0]
+            attachments_url: list = [
+                attachment.url for attachment in attachment_message.attachments][0]
             upload_url: str = self.bot[interaction.guild_id].get_upload()
-            self.bot[interaction.guild_id].write_file(attachments_url, upload_url)
+            self.bot[interaction.guild_id].write_file(
+                attachments_url, upload_url)
         else:
-            embed = discord.Embed(title="File sizes must be less than 7mb", color=discord.Color.red())
+            embed = discord.Embed(
+                title="File sizes must be less than 7mb", color=discord.Color.red())
             await interaction.followup.send(embed=embed, ephemeral=True)
 
     @discord.ui.button(label='⤴', style=discord.ButtonStyle.blurple, row=1)

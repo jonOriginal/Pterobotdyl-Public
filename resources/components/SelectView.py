@@ -19,6 +19,8 @@ class SelectView(discord.ui.View):
         guild_id = str(interaction.guild.id)
         channel_id = str(interaction.channel.id)
 
-        self.bot[guild_id] = {'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server, 'api_key': api_key}
-        embed = discord.Embed(title='Successfully registered', color=discord.Color.green())
+        self.bot[guild_id] = {
+            'guild_id': guild_id, 'channel_id': channel_id, 'server_id': server, 'api_key': api_key}
+        embed = discord.Embed(
+            title='Successfully registered', color=discord.Color.green())
         await interaction.response.send_message(embed=embed)
